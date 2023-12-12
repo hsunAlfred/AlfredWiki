@@ -1,15 +1,9 @@
 import hmac
-from base64 import b64decode, b64encode
+from base64 import b64decode
 from hashlib import sha1
 from urllib import parse
 
 from Member.utils.secure.easyRSA import easyRSA
-import time
-
-from AlfredWiki.settings import MONGO
-from pymongo import MongoClient
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
 
 
 def sessionKeyGenerate():
