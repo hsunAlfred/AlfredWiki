@@ -25,20 +25,20 @@
 
     <div class="container-ele input-div">
         <span>Email</span>
-        <input type="text">
+        <input type="text" id="email">
     </div>
 
     <div class="container-ele input-div">
         <span>Password</span>
-        <input type="password">
+        <input type="password" id="pass">
     </div>
 
-    <button class="container-ele btn btn-outline-light action-btn">Login</button>
+    <button class="container-ele btn btn-outline-light action-btn" onclick="login()">Login</button>
 
     <hr />
 
     <a class="container-ele btn btn-outline-light third-login-method" href="/member/google/">
-        <img src="/static/member/googleg_standard_color_128dp.png" />
+        <img src="/static/member/image/googleg_standard_color_128dp.png" />
         <span>Continue With Google</span>
     </a>
 
@@ -51,5 +51,83 @@
 {% endblock %}
 
 {% block custom_body %}
-<script></script>
+<script>
+    let login = function () {
+        let spk_client = document.getElementById("spk_client").value;
+
+        let email = document.getElementById("email").value;
+        let pass = document.getElementById("pass").value;
+
+        if (!email | !pass) {
+            alert("Email and password required!")
+        } else {
+            data = {
+                "email": cInfo(email, spk_client),
+                "pass": cInfo(pass, spk_client)
+            }
+
+            console.log(data)
+
+            const request = new Request(
+                '.',
+                {
+                    body: JSON.stringify(data),
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    method: 'POST',
+                    mode: 'cors',
+                    redirect: 'follow',
+                }
+            );
+
+            fetch(request)
+                .then(response => {
+                    console.log(response)
+                    if (response.redirected === true) {
+                        location.href = response.url;
+
+                        return;
+                    } else {
+                        if (!response.ok) {
+                            info = {
+                                "status": response.status,
+                                "body": response.json()
+                            }
+
+                            return Promise.reject(info);
+                        }
+
+                        return response.json();
+                    }
+                }).then(response => {
+                    console.log(response);
+                    alert("Login success!")
+
+                    next = new URL(location.href).searchParams.get('next');
+
+                    //console.log("next", next);
+
+                    if (!next) {
+                        window.location.href = "/"
+                    } else if (next == "/") {
+                        window.location.href = "/"
+                    } else {
+                        window.location.href = next
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+
+                    error.body.then((err) => {
+                        alert("Login fail! " + err.message);
+                    })
+                }).catch(function (error) {
+                    console.log(error);
+                    alert("Login fail!");
+                });
+        }
+    }
+</script>
 {% endblock %}

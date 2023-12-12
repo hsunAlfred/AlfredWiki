@@ -26,8 +26,8 @@ def session_decrypted(data_encrypted, session_private_key):
     }
 
     try:
-        results["info"] = easyRSA().session_decrypted(
-            data_encrypted, session_private_key.encode())
+        results["info"] = b64decode(easyRSA().session_decrypted(
+            data_encrypted, session_private_key.encode())).decode()
     except:
         results["status"] = "Fail"
 

@@ -185,21 +185,32 @@
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous"></script>
 
-  {% block custom_body %}{% endblock %}
-
-  <!-- <hr> -->
-  <div class="copyright">
-    <span>
-      Copyright © 2023 alfred.wiki. All rights reserved.
-    </span>
-  </div>
-
+  <script src="/static/member/js/jsencrypt.min.js"></script>
 
   <div>
     <div hidden>
       <input id="spk_client" value="{{spk_client}}" name="spk_client">
     </div>
   </div>
+
+  <div class="copyright">
+    <span>
+      Copyright © 2023 alfred.wiki. All rights reserved.
+    </span>
+  </div>
+
+  <script>
+    let cInfo = function (info, s) {
+      let jsEncrypt = new JSEncrypt()
+      jsEncrypt.setPublicKey(s)
+      let result = jsEncrypt.encrypt(btoa(info))
+
+      return result
+    }
+  </script>
+
+  {% block custom_body %}{% endblock %}
+
 </body>
 
 </html>

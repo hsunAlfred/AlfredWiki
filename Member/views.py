@@ -1,9 +1,14 @@
 from django.shortcuts import render
+from django.contrib import auth
+from django.contrib.auth.models import User
+
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from Member.utils.identify.google import startValid, callbackHandler, testSession, revokeAccess
 from Member.utils.secure.secureTools import hmacsha, session_decrypted, session_key_generate
 from AlfredWiki.settings import DEBUG
 import json
+import re
+import sys
 
 # Create your views here.
 
@@ -11,7 +16,7 @@ import json
 def login(request):
     # login page
     if request.method not in ['GET', 'POST']:
-        return JsonResponse({'ok': False, 'message': 'Method Not Allowed'})
+        return JsonResponse({'ok': False, 'message': 'Method Not Allowed.'}, status=405)
 
     if request.method == 'GET':
         session_public_key, session_private_key = session_key_generate()
@@ -26,14 +31,55 @@ def login(request):
     try:
         body = json.loads(request.body)
 
-        email = body['email']
+        email_encrypt = body['email']
+        email_decrypt = session_decrypted(
+            email_encrypt, request.session['login_private_key'])
+
         pass_encrypt = body['pass']
         pass_decrypt = session_decrypted(
             pass_encrypt, request.session['login_private_key'])
 
-        print(email, pass_decrypt)
+        if not email_decrypt['status'] or not pass_decrypt['status']:
+            raise
+
+        email_decrypt = email_decrypt['info']
+        regex = re.compile(
+            r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+        if not re.fullmatch(regex, email_decrypt):
+            raise
+
+        pass_decrypt = pass_decrypt['info']
+
+        pass_hash = hmacsha(email_decrypt, pass_decrypt)
+        print(pass_hash)
     except:
-        return JsonResponse({'ok': False, 'message': 'Invalid Parameter'})
+        return JsonResponse({'ok': False, 'message': 'Invalid Parameter.'}, status=400)
+
+    ok = True
+    message = "Success."
+    try:
+        user_tmp = User.objects.filter(email=email_decrypt).username
+
+        try:
+            user_obj = auth.authenticate(username=user_tmp, password=pass_hash)
+
+            if user_obj is not None:
+                if user_obj.is_active:
+                    auth.login(request, user_obj)
+            else:
+                ok = False
+                message = "Fail."
+        except Exception as e:
+            exception_type, exception, exc_tb = sys.exc_info()
+            print(exception_type, exception, exc_tb)
+
+            ok = False
+            message = str(e)
+    except:
+        ok = False
+        message = "User not exist."
+
+    return JsonResponse({'ok': ok, 'message': message}, status=200 if ok else 401)
 
 
 def signup(request):

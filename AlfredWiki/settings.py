@@ -72,6 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'AlfredWiki.wsgi.application'
 
+DBHOST = 'localhost'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -90,6 +91,7 @@ DATABASES = {
     }
 }
 
+MONGO = f"mongodb://user:password@{DBHOST}:27017/?authMechanism=SCRAM-SHA-256"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
