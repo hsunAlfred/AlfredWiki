@@ -12,11 +12,11 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
 
-def session_key_generate():
+def sessionKeyGenerate():
     return easyRSA().session_key()
 
 
-def session_decrypted(data_encrypted, session_private_key):
+def sessionDecrypted(data_encrypted, session_private_key):
     data_encrypted = parse.unquote(data_encrypted)
     data_encrypted = b64decode(data_encrypted)
 

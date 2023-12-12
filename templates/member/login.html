@@ -24,8 +24,8 @@
     </h1>
 
     <div class="container-ele input-div">
-        <span>Email</span>
-        <input type="text" id="email">
+        <span>Username/Email</span>
+        <input type="text" id="userEmail">
     </div>
 
     <div class="container-ele input-div">
@@ -55,14 +55,14 @@
     let login = function () {
         let spk_client = document.getElementById("spk_client").value;
 
-        let email = document.getElementById("email").value;
+        let userEmail = document.getElementById("userEmail").value;
         let pass = document.getElementById("pass").value;
 
-        if (!email | !pass) {
-            alert("Email and password required!")
+        if (!userEmail | !pass) {
+            alert("All fields required!")
         } else {
             data = {
-                "email": cInfo(email, spk_client),
+                "userEmail": cInfo(userEmail, spk_client),
                 "pass": cInfo(pass, spk_client)
             }
 
