@@ -78,15 +78,6 @@ def signup(request):
 
 def logout(request):
     # logout
-    if 'credentials' in request.session:
-        credentials = request.session['credentials']
-
-        result = revokeAccess(credentials)
-
-    try:
-        del request.session['credentials']
-    except:
-        pass
 
     auth.logout(request)
 
