@@ -1,14 +1,11 @@
 from django.shortcuts import render
 from django.contrib import auth
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from Member.utils.identify.google import startValid, callbackHandler, testSession, revokeAccess
-from Member.utils.secure.secureTools import hmacsha, sessionDecrypted, sessionKeyGenerate
+from Member.utils.oauth.google import startValid, callbackHandler, testSession, revokeAccess
+from Member.utils.secure.secureTools import sessionKeyGenerate
 from Member.utils.loginSignup.login import loginCheck
 from Member.utils.loginSignup.signup import signupCheck
 
-from Member.utils.loginSignup.fieldVaild import usernameVaild, emailVaild, passwordVaild, ValidException
 from AlfredWiki.settings import DEBUG
 import json
 from django.contrib.auth.decorators import login_required
@@ -37,11 +34,18 @@ def login(request):
     # call api to login
     body = json.loads(request.body)
 
-    lc = loginCheck(body, request.session['login_private_key'])
-    if lc.ok:
-        auth.login(request, lc.user_obj)
+    lc = loginCheck()
 
-    return JsonResponse({'ok': lc.ok, 'message': lc.message}, status=lc.code)
+    lc.decryptBody(body, request.session['login_private_key'])
+    if not lc.lsr.ok:
+        return JsonResponse({'ok': lc.lsr.ok, 'message': lc.lsr.message}, status=lc.lsr.code)
+
+    lc.process()
+
+    if lc.lsr.ok:
+        auth.login(request, lc.lsr.user_obj)
+
+    return JsonResponse({'ok': lc.lsr.ok, 'message': lc.lsr.message}, status=lc.lsr.code)
 
 
 def signup(request):
@@ -62,9 +66,16 @@ def signup(request):
         return render(request, 'member/signup.html', context=context)
 
     body = json.loads(request.body)
-    sc = signupCheck(body, request.session['signup_private_key'])
 
-    return JsonResponse({'ok': sc.ok, 'message': sc.message}, status=sc.code)
+    sc = signupCheck()
+    sc.decryptBody(body, request.session['signup_private_key'])
+
+    if not sc.lsr.ok:
+        return JsonResponse({'ok': sc.lsr.ok, 'message': sc.lsr.message}, status=sc.lsr.code)
+
+    sc.process()
+
+    return JsonResponse({'ok': sc.lsr.ok, 'message': sc.lsr.message}, status=sc.lsr.code)
 
 
 def google(request):
