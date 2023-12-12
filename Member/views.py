@@ -1,12 +1,10 @@
 from django.shortcuts import render
 from django.contrib import auth
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from Member.utils.oauth.google import startValid, callbackHandler, testSession, revokeAccess
 from Member.utils.secure.secureTools import sessionKeyGenerate
 from Member.utils.loginSignup.login import loginCheck
 from Member.utils.loginSignup.signup import signupCheck
 
-from AlfredWiki.settings import DEBUG
 import json
 from django.contrib.auth.decorators import login_required
 
@@ -76,52 +74,6 @@ def signup(request):
     sc.process()
 
     return JsonResponse({'ok': sc.lsr.ok, 'message': sc.lsr.message}, status=sc.lsr.code)
-
-
-def google(request):
-    # user choose login/signup with google
-    obj = startValid()
-    authorization_url = obj['authorization_url']
-    request.session['state'] = obj['state']
-
-    return HttpResponseRedirect(authorization_url)
-
-# {
-    # 'id': '111964431590889584337',
-    # 'email': 'alfredchen346@gmail.com',
-    # 'verified_email': True,
-    # 'name': 'Alfred Chen',
-    # 'given_name': 'Alfred',
-    # 'family_name': 'Chen',
-    # 'picture': 'https://lh3.googleusercontent.com/a/ACg8ocJHDDoUXrkf8Q5ihqW__jn9FTJ8z64dkB2UabUMB-rs=s96-c',
-    # 'locale': 'zh-TW'
-    # }
-
-
-def google_callback(request):
-    # google callback
-    state = request.session['state']
-
-    authorization_response = (
-        "http://" if DEBUG else "https://") + request.get_host()+request.get_full_path()
-
-    request.session['credentials'] = callbackHandler(
-        state, authorization_response)
-
-    return HttpResponseRedirect('/google/test/')
-
-
-def googleTest(request):
-    if 'credentials' not in request.session:
-        return HttpResponseRedirect('/')
-
-    obj = testSession(request.session['credentials'])
-
-    print(obj['userInfos'])
-
-    request.session['credentials'] = obj['credentials']
-
-    return HttpResponse("'status':'ok', <a href='/google/revoke/'>revoke</a>")
 
 
 def logout(request):
