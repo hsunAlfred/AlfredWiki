@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from Member.utils.secure.secureTools import hmacsha, sessionDecrypted
 from Member.utils.loginSignup.fieldVaild import usernameVaild, emailVaild, passwordVaild, ValidException
 from Member.utils.loginSignup.loginSignup import loginSignupBase
+from Member.models import UserSignupPlatform
 
 
 class signupCheck(loginSignupBase):
@@ -69,5 +70,7 @@ class signupCheck(loginSignupBase):
             user = User.objects.create_user(
                 username=self.username_decrypt, email=self.email_decrypt, password=self.pass_hash)
             user.save()
+
+            UserSignupPlatform.objects.create(User=user, Platform="self")
         except Exception as e:
             self.lsr.setFail('Sign up fail.', 400)

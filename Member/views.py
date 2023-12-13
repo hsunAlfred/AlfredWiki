@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib import auth
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from Member.utils.oauth.google import startValid, callbackHandler, testSession, revokeAccess
+from Member.utils.oauth2.google import startValid, callbackHandler, testSession, revokeAccess
 from Member.utils.secure.secureTools import sessionKeyGenerate
 from Member.utils.loginSignup.login import loginCheck
 from Member.utils.loginSignup.signup import signupCheck
