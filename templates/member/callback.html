@@ -1,0 +1,53 @@
+{% extends 'member/base/base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href=".">
+            <img src="/static/logo.png">
+            <span>Alfred's Python Wiki</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="container-ele">
+        {{GoogleOauth2By}} Fail
+    </h1>
+
+    <span>{{fail_reason}}</span>
+
+    <a class="container-ele btn btn-outline-light third-login-method" href="/member/logout/?redirect={{redirect}}">
+        <span id="again5">Back to {{GoogleOauth2By}}. Auto redirect in 5 seconds.</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block custom_body %}
+<script>
+    var sec = 5;
+
+    let sec5=function(){
+        sec -= 1
+        console.log(sec)
+        document.getElementById("again5").innerText = "Back to {{GoogleOauth2By}}. Auto redirect in " + sec + " seconds."
+        if (sec==0){
+            location.href = "/member/logout/"
+        }else{
+            setTimeout(sec5, 1000);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+        sec5()
+    })
+</script>
+{% endblock %}

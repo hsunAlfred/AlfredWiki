@@ -16,6 +16,8 @@ class UserSignupPlatform(models.Model):
     ]
     Platform = models.CharField(
         "Platform", max_length=10, choices=Platform_Choice)
+    
+    GoogleUserID = models.CharField("GoogleUserID", max_length=50, null=True, blank=True)
 
     class Meta:
         ordering = ['User__username', 'Platform']

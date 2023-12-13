@@ -39,12 +39,23 @@ class signupCheck(loginSignupBase):
             self.lsr.setFail(str(e), 400)
         except Exception as e:
             self.lsr.setFail('Invalid Parameter.', 400)
+            
+    def oauthSet(self, username, email, userid):
+        self.username_decrypt = username
+        self.email_decrypt = email
+        
+        self.pass_decrypt = hmacsha(email, userid)
+        self.pass_hash = hmacsha(self.username_decrypt, self.pass_decrypt)
+        self.userid=userid
 
-    def process(self):
+    def process(self, signupby):
         try:
             User.objects.get(username=self.username_decrypt)
 
-            self.lsr.setFail('Username has been registered.', 400)
+            if signupby == "Google":
+                User.objects.get(username=self.username_decrypt+"_Google")
+            else:
+                self.lsr.setFail('Username has been registered.', 400)
         except ObjectDoesNotExist as e:
             print('Username OK')
 
@@ -71,6 +82,9 @@ class signupCheck(loginSignupBase):
                 username=self.username_decrypt, email=self.email_decrypt, password=self.pass_hash)
             user.save()
 
-            UserSignupPlatform.objects.create(User=user, Platform="self")
+            UserSignupPlatform.objects.create(User=user, Platform=signupby, GoogleUserID=self.userid if signupby=="Google" else None)
+            
+            self.lsr.user_obj = user
         except Exception as e:
+            print(e)
             self.lsr.setFail('Sign up fail.', 400)

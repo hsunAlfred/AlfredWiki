@@ -20,6 +20,10 @@ class loginSignupBase(metaclass=ABCMeta):
     @abstractmethod
     def decryptBody(self):
         pass
+    
+    @abstractmethod
+    def oauthSet(self):
+        pass
 
     @abstractmethod
     def process(self):

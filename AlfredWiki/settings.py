@@ -156,7 +156,7 @@ GOOGLE_SCOPES = [
     'https://www.googleapis.com/auth/userinfo.profile',
     'openid'
 ]
-GOOGLE_REDIRECT_URI = 'http://127.0.0.1:8000/google/callback/'
+GOOGLE_REDIRECT_URI = 'http://127.0.0.1:8000/member/google/callback/'
 API_SERVICE_NAME = 'oauth2'
 API_VERSION = 'v2'
 
