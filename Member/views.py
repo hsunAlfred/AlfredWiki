@@ -81,33 +81,22 @@ def signup(request):
 def google(request):
     # user choose login/signup with google
     referrer = request.headers.get('Referer')
-    
+
     if not referrer:
-        return JsonResponse({"message":"Forbidden"}, status=403)
-    
+        return JsonResponse({"message": "Forbidden"}, status=403)
+
     if "/member/login/" in referrer:
         request.session['GoogleOauth2By'] = 'Login'
     elif "/member/signup/" in referrer:
         request.session['GoogleOauth2By'] = 'Signup'
     else:
-        return JsonResponse({"message":"Forbidden"}, status=403)
-    
+        return JsonResponse({"message": "Forbidden"}, status=403)
+
     obj = startValid()
     authorization_url = obj['authorization_url']
     request.session['state'] = obj['state']
 
     return HttpResponseRedirect(authorization_url)
-
-# {
-    # 'id': '111964431590889584337',
-    # 'email': 'alfredchen346@gmail.com',
-    # 'verified_email': True,
-    # 'name': 'Alfred Chen',
-    # 'given_name': 'Alfred',
-    # 'family_name': 'Chen',
-    # 'picture': 'https://lh3.googleusercontent.com/a/ACg8ocJHDDoUXrkf8Q5ihqW__jn9FTJ8z64dkB2UabUMB-rs=s96-c',
-    # 'locale': 'zh-TW'
-    # }
 
 
 def google_callback(request):
@@ -119,21 +108,21 @@ def google_callback(request):
 
     credentials = callbackHandler(
         state, authorization_response)
-    
+
     obj = testSession(credentials)
 
     print(obj['userInfos'])
-    
+
     request.session['credentials'] = obj['credentials']
-    
+
     try:
         GoogleOauth2By = request.session['GoogleOauth2By']
         if not GoogleOauth2By:
             raise
     except:
-        return HttpResponseRedirect('/member/logout/')    
-    
-    if  GoogleOauth2By == 'Login':
+        return HttpResponseRedirect('/member/logout/')
+
+    if GoogleOauth2By == 'Login':
         lc = loginCheck()
 
         lc.oauthSet(obj['userInfos']['email'], obj['userInfos']['id'])
@@ -143,24 +132,24 @@ def google_callback(request):
         if lc.lsr.ok:
             auth.login(request, lc.lsr.user_obj)
             return HttpResponseRedirect('/')
-        
-        return render(request, "member/callback.html", {"GoogleOauth2By":GoogleOauth2By, "fail_reason":lc.lsr.message, "redirect":"/member/login/"})
-    
+
+        return render(request, "member/callback.html", {"GoogleOauth2By": GoogleOauth2By, "fail_reason": lc.lsr.message, "redirect": "/member/login/"})
+
     if GoogleOauth2By == 'Signup':
         sc = signupCheck()
-        
-        sc.oauthSet(obj['userInfos']['name'], obj['userInfos']['email'], obj['userInfos']['id'])
+
+        sc.oauthSet(obj['userInfos']['name'], obj['userInfos']
+                    ['email'], obj['userInfos']['id'])
 
         sc.process(signupby="Google")
-        
+
         if sc.lsr.ok:
             auth.login(request, sc.lsr.user_obj)
             return HttpResponseRedirect('/')
-        
-        return render(request, "member/callback.html", {"GoogleOauth2By":GoogleOauth2By, "fail_reason":sc.lsr.message, "redirect":"/member/signup/"})
-    
-    return HttpResponseRedirect('/member/logout/')    
 
+        return render(request, "member/callback.html", {"GoogleOauth2By": GoogleOauth2By, "fail_reason": sc.lsr.message, "redirect": "/member/signup/"})
+
+    return HttpResponseRedirect('/member/logout/')
 
 
 def logout(request):
@@ -178,13 +167,14 @@ def logout(request):
     auth.logout(request)
 
     redirect = request.GET.get("redirect")
-    
+
     if redirect == "/member/login/":
         return HttpResponseRedirect('/member/login/')
     elif redirect == "/member/signup/":
         return HttpResponseRedirect('/member/signup/')
-    
+
     return HttpResponseRedirect('/member/login/')
+
 
 @login_required(login_url='/member/login/')
 def index(request):
